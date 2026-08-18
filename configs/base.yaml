@@ -1,0 +1,45 @@
+# Shared defaults. Dataset-specific configs (ped2.yaml, avenue.yaml,
+# shanghaitech.yaml) inherit these keys and override what differs.
+
+backbone:
+  name: resnet18          # resnet18 | dinov2_vits14
+  pretrained: true
+  freeze: true
+  embed_dim: 512           # 512 for resnet18, 384 for dinov2_vits14
+  image_size: 224
+
+ssm:
+  state_dim: 128
+  embed_dim: 512            # must match backbone.embed_dim
+  num_layers: 2
+  gate_hidden_dim: 64
+  init_decay_min: 0.9       # bounds for initial per-channel decay rate a_t in (0,1)
+  init_decay_max: 0.999
+
+head:
+  type: prediction          # prediction (predict e_{t+1} from s_t) | reconstruction
+  hidden_dim: 256
+
+train:
+  clip_len: 16               # frames per training window (parallel-scan chunk)
+  batch_size: 32
+  epochs: 30
+  lr: 3.0e-4
+  weight_decay: 1.0e-5
+  warmup_epochs: 2
+  grad_clip: 1.0
+  seed: 0
+  device: auto                # auto | mps | cpu | cuda
+  num_workers: 4
+  log_every: 20
+  ckpt_every: 5
+
+eval:
+  score_smoothing: 1          # temporal Gaussian smoothing sigma (frames), 0 = off
+  batch_size: 1                # streaming eval is inherently sequential per video
+
+paths:
+  data_root: data              # overridden per-dataset
+  feature_cache: features_cache
+  checkpoint_dir: checkpoints
+  results_dir: results

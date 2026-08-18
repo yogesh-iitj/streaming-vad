@@ -1,0 +1,19 @@
+extends: base.yaml
+dataset:
+  name: shanghaitech
+  root: data/ShanghaiTech
+  # expected layout after prepare_dataset.py has been run:
+  #   data/ShanghaiTech/train/frames/<clip_id>/*.jpg
+  #   data/ShanghaiTech/test/frames/<clip_id>/*.jpg
+  #   data/ShanghaiTech/test/gt/<clip_id>.npy
+  fps: 24
+  frame_ext: jpg
+
+train:
+  batch_size: 32
+  epochs: 20   # larger dataset, fewer epochs needed
+
+paths:
+  feature_cache: features_cache/shanghaitech
+  checkpoint_dir: checkpoints/shanghaitech
+  results_dir: results/shanghaitech

@@ -1,0 +1,45 @@
+\section{Introduction}
+\label{sec:intro}
+
+% TODO: standard VAD motivation paragraph — surveillance, safety,
+% resource-constrained deployment. Keep to 1 paragraph, cite Sultani et
+% al.~\cite{sultani2018ucfcrime} and Liu et al.~\cite{liu2018future} for
+% the problem setting.
+
+Video anomaly detection (VAD) systems are increasingly deployed at the
+edge — on cameras, robots, and mobile devices — where compute, memory,
+and power are all constrained and predictions must be produced online, as
+frames arrive, rather than after the fact. This motivates two properties
+that are jointly under-studied in recent work: \emph{strict causality}
+(a prediction at time $t$ must depend only on frames $1,\dots,t$, with
+bounded per-step compute and memory) and \emph{real hardware
+feasibility} (measured, not asserted, latency/throughput on the class of
+device the method targets).
+
+State-space models (SSMs), and Mamba~\cite{gu2023mamba} in particular,
+have recently been proposed for VAD on efficiency grounds: VADMamba
+\cite{vadmamba2025} combines a Mamba-based temporal block with
+vector-quantized frame prediction and optical-flow reconstruction, and
+Wave-MambaAD~\cite{wavemambaad2025} adds a wavelet-driven SSM for
+unified subtle/large-scale anomaly detection. These works establish that
+SSMs are a good fit for VAD's efficiency requirements, but (a) still
+process the input in clips or windows rather than truly online per-frame,
+(b) report no theoretical relationship between the model's temporal
+memory and how quickly it can detect an anomaly, and (c) benchmark
+efficiency in terms of GPU throughput rather than measuring the
+target-deployment hardware directly.
+
+% TODO: contributions list — keep to 3 bullets matching the 3 gaps above.
+This paper makes three contributions:
+\begin{enumerate}
+  \item A strictly causal streaming formulation of SSM-based VAD, with a
+  concrete architecture (Section~\ref{sec:method}) in which every
+  operation is expressible as a per-frame $O(1)$ update.
+  \item A theoretical analysis (Section~\ref{sec:theory}) relating the
+  recurrence's decay spectrum to detection delay and minimum-detectable
+  anomaly duration, validated empirically.
+  \item An end-to-end evaluation including real on-device latency,
+  memory, and throughput measurements on consumer edge silicon
+  (Section~\ref{sec:experiments}), in addition to standard accuracy
+  metrics on three benchmarks.
+\end{enumerate}

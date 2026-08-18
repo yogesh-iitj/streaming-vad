@@ -1,0 +1,19 @@
+extends: base.yaml
+dataset:
+  name: avenue
+  root: data/Avenue
+  # expected layout after prepare_dataset.py has been run:
+  #   data/Avenue/train/frames/<clip_id>/*.jpg
+  #   data/Avenue/test/frames/<clip_id>/*.jpg
+  #   data/Avenue/test/gt/<clip_id>.npy
+  fps: 25
+  frame_ext: jpg
+
+train:
+  batch_size: 32
+  epochs: 30
+
+paths:
+  feature_cache: features_cache/avenue
+  checkpoint_dir: checkpoints/avenue
+  results_dir: results/avenue

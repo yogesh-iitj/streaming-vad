@@ -1,0 +1,41 @@
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Video anomaly detection.}
+% TODO: expand with 1-2 more sentences per line of work once citation list is finalized.
+Reconstruction- and prediction-based methods
+\cite{liu2018future,park2020mnad} learn the distribution of normal motion
+and flag frames with high reconstruction/prediction error; weakly
+supervised methods \cite{sultani2018ucfcrime} instead learn from
+video-level labels over long, untrimmed surveillance footage. Our method
+follows the prediction-based line, operating in a frozen backbone's
+embedding space rather than pixel space.
+
+\paragraph{State-space models for anomaly detection.}
+S4~\cite{gu2022s4} and its simplified diagonal variant
+S5~\cite{smith2023s5} established that linear state-space recurrences can
+match attention on long-range sequence tasks at linear time/memory
+complexity; Mamba~\cite{gu2023mamba} added input-dependent (``selective'')
+parameterization. In video anomaly detection specifically, VADMamba
+\cite{vadmamba2025} pioneered applying a Mamba-based block
+(``Non-negative Visual State Space'') to multi-task frame-prediction and
+optical-flow reconstruction, and Wave-MambaAD~\cite{wavemambaad2025}
+combines a wavelet transform with an SSM for unsupervised anomaly
+detection at multiple anomaly scales; MambaAD~\cite{mambaad2024}
+applies a similar idea to multi-class \emph{image} (not video) anomaly
+detection. All of these process input in clips/windows and report
+accuracy and (at most) GPU throughput; none provide a strict online/
+$O(1)$-per-frame formulation, a theoretical latency analysis, or
+measurements on edge/consumer hardware, which is the gap this paper
+targets.
+% TODO: verify this characterization against the full papers (only
+% abstracts/summaries were available when drafting this section) before
+% submission, and add direct experimental comparison in Section
+% \ref{sec:experiments} once their official code is run under this
+% codebase's protocol.
+
+\paragraph{Efficient / streaming video understanding more broadly.}
+% TODO: cite adaptive frame-sampling / early-exit work (AdaFrame, SCSampler,
+% AR-Net, etc.) as related-but-orthogonal efficiency mechanisms, and
+% contrast with the state-based (not sampling-based) efficiency mechanism
+% used here.

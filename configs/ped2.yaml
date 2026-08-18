@@ -1,0 +1,19 @@
+extends: base.yaml
+dataset:
+  name: ped2
+  root: data/UCSDped2
+  # expected layout after prepare_dataset.py has been run:
+  #   data/UCSDped2/train/frames/<clip_id>/*.jpg
+  #   data/UCSDped2/test/frames/<clip_id>/*.jpg
+  #   data/UCSDped2/test/gt/<clip_id>.npy      (per-frame binary anomaly labels)
+  fps: 10
+  frame_ext: jpg
+
+train:
+  batch_size: 16
+  epochs: 40
+
+paths:
+  feature_cache: features_cache/ped2
+  checkpoint_dir: checkpoints/ped2
+  results_dir: results/ped2

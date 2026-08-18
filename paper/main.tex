@@ -1,0 +1,49 @@
+% NOTE: this uses the generic IEEEtran class as a stand-in so the
+% skeleton compiles without extra downloads. Before submission, swap in
+% the official TPAMI/IEEE Transactions LaTeX template (IEEE provides one
+% via its Author Center) and re-check formatting requirements — column
+% widths, section numbering style, and bib style differ slightly from
+% plain IEEEtran.
+\documentclass[journal]{IEEEtran}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{hyperref}
+\usepackage{cite}
+
+\newtheorem{proposition}{Proposition}
+
+\begin{document}
+
+\title{Strictly Causal Streaming Video Anomaly Detection with a
+Theoretically-Grounded State-Space Core}
+
+% TODO: author list, affiliations, funding/acknowledgment footnote.
+\author{Author~Name%
+\thanks{Manuscript submitted to IEEE Transactions on Pattern Analysis and Machine Intelligence.}}
+
+\markboth{IEEE Transactions on Pattern Analysis and Machine Intelligence}{}
+
+\maketitle
+
+\input{sections/abstract}
+
+\begin{IEEEkeywords}
+video anomaly detection, state-space models, streaming inference, edge deployment, real-time video understanding
+\end{IEEEkeywords}
+
+\input{sections/intro}
+\input{sections/related_work}
+\input{sections/method}
+\input{sections/theory}
+\input{sections/experiments}
+\input{sections/conclusion}
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\end{document}

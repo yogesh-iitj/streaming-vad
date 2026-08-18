@@ -1,0 +1,23 @@
+\begin{abstract}
+% TODO: rewrite once real numbers exist (see results/*/eval_results.json).
+% Draft skeleton below states the framing; fill in concrete AUC/EER/latency
+% figures and remove bracketed placeholders before submission.
+Recent work has applied Mamba-style state-space models (SSMs) to video
+anomaly detection, but existing approaches still buffer clips or windows
+internally and report no theoretical account of how a model's temporal
+memory relates to detection latency, nor any measurement on real edge
+hardware. We introduce a strictly causal streaming video anomaly detector
+in which a fixed-size state is updated in $O(1)$ time and memory per
+incoming frame, with no lookahead and no clip buffering. The temporal core
+is a diagonal linear state-space recurrence with an input- and
+state-dependent decay gate, trained self-supervised via causal
+next-embedding prediction on a frozen visual backbone. We derive a
+closed-form relationship between the recurrence's decay spectrum and its
+detection delay / minimum-detectable event duration, and validate it
+empirically. We further report end-to-end latency, memory, and throughput
+measured on consumer edge silicon (Apple M3 Pro), not just GPU throughput.
+On [UCSD Ped2 / CUHK Avenue / ShanghaiTech], our method achieves
+[XX.X]\% frame-level AUC while running at [XXX] FPS with [X.X] ms
+per-frame latency on-device, [matching/approaching] prior SSM-based
+methods that are not strictly causal.
+\end{abstract}

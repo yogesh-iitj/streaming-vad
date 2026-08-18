@@ -1,0 +1,93 @@
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Datasets and protocol}
+% TODO: fill in exact clip/frame counts once scripts/prepare_dataset.py
+% has been run; see README.md "Dataset preparation".
+We evaluate on three standard unsupervised VAD benchmarks: UCSD
+Ped2, CUHK Avenue, and ShanghaiTech. All three provide normal-only
+training video and mixed normal/anomalous test video with frame-level
+(and, for Ped2, pixel-level) ground truth. We report frame-level ROC-AUC
+and equal error rate (EER) using the standard per-clip min-max score
+normalization protocol \cite{liu2018future}.
+
+\subsection{Implementation details}
+% TODO: report actual backbone/hyperparameters used for final numbers —
+% these should match whatever is in configs/*.yaml at the time results
+% were produced; keep this section in sync with the config, not the other
+% way around.
+Frame embeddings come from a frozen backbone (ResNet-18, $D{=}512$, or
+DINOv2 ViT-S/14, $D{=}384$ — see \texttt{configs/*.yaml}). The causal SSM
+stack has 2 layers with state size $N{=}128$ per layer
+(Section~\ref{sec:method-ssm}), trained with AdamW, learning rate
+$3\times10^{-4}$, on causal windows of 16 frames. All training and
+evaluation was run on an Apple M3 Pro (MPS backend); no CUDA-specific
+code path exists in this implementation.
+
+\subsection{Main results}
+Table~\ref{tab:main} reports frame-AUC, EER, and per-frame latency/FPS
+measured directly on-device (Section~\ref{sec:method}, streaming
+inference — \texttt{src/evaluate.py} calls the identical \texttt{step()}
+routine used at deployment, with \texttt{torch.mps.synchronize()} before
+each timing boundary). Rows attributed to prior work are as reported in
+their respective papers, not reproduced under this protocol unless noted;
+see \S\ref{sec:related} for citations.
+% TODO: reproduce at least one baseline (VADMamba has public code) under
+% this codebase's exact evaluation protocol before submission — a
+% same-protocol comparison is much stronger evidence than citing numbers
+% computed under a different eval setup.
+
+\input{tables/results_table}
+
+\subsection{Theory validation}
+Table~\ref{tab:theory} compares the settling-delay bound
+(Eq.~\ref{eq:delay-bound}, Proposition~\ref{prop:settling}) computed from
+each trained layer's mean learned base decay against the empirically
+measured detection delay (frames between an anomalous segment's labeled
+onset and the first score-threshold crossing;
+\texttt{src.metrics.detection\_delay}).
+
+\input{tables/theory_table}
+
+\subsection{Ablations}
+Tables~\ref{tab:ablation-ucsd-ped2} and \ref{tab:ablation-cuhk-avenue}
+report decay-rate, state-size, and event-boundary-gate ablations on Ped2
+and Avenue respectively, all else (backbone, training budget, epochs)
+held fixed at the Section~\ref{sec:experiments} implementation details.
+
+\input{tables/ablation_table_ped2}
+\input{tables/ablation_table_avenue}
+
+% TODO: this cross-dataset flip is the most interesting empirical result
+% in the paper so far and deserves a dedicated discussion, not just this
+% paragraph — consider a figure plotting AUC-vs-capacity per dataset once
+% ShanghaiTech (a third, larger data point) is in.
+The two datasets tell different stories, and the difference is
+informative. On Ped2 (16 training clips, 120-180 frames each),
+\emph{disabling} the gate improves frame-AUC over the gated baseline
+(76.6\% vs.\ 67.9\%) and the smaller state ($N{=}32$) beats both the
+baseline ($N{=}128$) and the larger variant ($N{=}256$) — i.e.\ every
+higher-capacity variant underperforms a simpler one. On Avenue (also 16
+training clips, but 36-1271 frames each — substantially more total
+training frames despite the same clip count), the pattern
+\emph{reverses}: disabling the gate \emph{hurts} sharply (60.0\% vs.\
+70.2\%), and the larger state ($N{=}256$) slightly beats the baseline
+rather than underperforming it. This is consistent with the gate's extra
+parameters (Eq.~\ref{eq:gate}) overfitting on Ped2's very small training
+set but finding real signal once given Avenue's larger one — evidence
+for a capacity/data-size interaction rather than the gating mechanism
+being unhelpful in principle (Section~\ref{sec:theory-gating}), but we
+only have two data points and both happen to have 16 training clips (only
+total frame count differs) — a third, larger dataset (ShanghaiTech) is
+needed before treating this as more than a hypothesis. The decay-rate
+sweep (fast vs.\ slow base decay, gate on) shows comparatively little
+effect on either dataset, suggesting decay range is not the dominant
+factor. We do not yet have a strict-causal-vs.-windowed ablation (would
+require a lookahead-buffer variant of Section~\ref{sec:method-ssm}, not
+yet implemented).
+
+\subsection{Edge deployment}
+% TODO: CoreML/ANE export + benchmark not yet automated in this
+% codebase (see README.md "Reproducing the edge-latency numbers");
+% MPS latency numbers in Table~\ref{tab:main} are already real
+% on-device measurements, not simulated.
