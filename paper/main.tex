@@ -1,10 +1,8 @@
-% NOTE: this uses the generic IEEEtran class as a stand-in so the
-% skeleton compiles without extra downloads. Before submission, swap in
-% the official TPAMI/IEEE Transactions LaTeX template (IEEE provides one
-% via its Author Center) and re-check formatting requirements (column
-% widths, section numbering style, and bib style differ slightly from
-% plain IEEEtran).
-\documentclass[journal]{IEEEtran}
+% Formatted for Pattern Recognition Letters (Elsevier `elsarticle` class,
+% numbered references via elsarticle-num.bst). Elsevier's production team
+% retypesets accepted papers into their final two-column layout; authors
+% submit in this single-column "preprint" form for review.
+\documentclass[preprint,12pt]{elsarticle}
 
 \usepackage{graphicx}
 \usepackage{booktabs}
@@ -13,28 +11,33 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{hyperref}
-\usepackage{cite}
+\usepackage{lineno}
+\modulolinenumbers[5]
 
 \newtheorem{proposition}{Proposition}
 
+\journal{Pattern Recognition Letters}
+
 \begin{document}
 
-\title{Strictly Causal Streaming Video Anomaly Detection with a
-Theoretically-Grounded State-Space Core}
+\begin{frontmatter}
 
-% TODO: author list, affiliations, funding/acknowledgment footnote.
-\author{Author~Name%
-\thanks{Manuscript submitted to IEEE Transactions on Pattern Analysis and Machine Intelligence.}}
+\title{Strictly Causal Streaming Video Anomaly Detection with a Theoretically-Grounded State-Space Core}
 
-\markboth{IEEE Transactions on Pattern Analysis and Machine Intelligence}{}
+\author[iitj]{Yogesh Kumar}
+\ead{kumar.204@iitj.ac.in}
 
-\maketitle
+\address[iitj]{Indian Institute of Technology Jodhpur, Jodhpur, India}
 
 \input{sections/abstract}
 
-\begin{IEEEkeywords}
-video anomaly detection, state-space models, streaming inference, edge deployment, real-time video understanding
-\end{IEEEkeywords}
+\begin{keyword}
+video anomaly detection \sep state-space models \sep streaming inference \sep edge deployment \sep real-time video understanding
+\end{keyword}
+
+\end{frontmatter}
+
+\linenumbers
 
 \input{sections/intro}
 \input{sections/related_work}
@@ -43,7 +46,7 @@ video anomaly detection, state-space models, streaming inference, edge deploymen
 \input{sections/experiments}
 \input{sections/conclusion}
 
-\bibliographystyle{IEEEtran}
+\bibliographystyle{elsarticle-num}
 \bibliography{refs}
 
 \end{document}

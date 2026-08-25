@@ -63,6 +63,8 @@ def main():
     lines.append("\\caption{Main results: standard accuracy metrics alongside on-device "
                   "streaming latency/throughput.}")
     lines.append("\\label{tab:main}")
+    lines.append("\\resizebox{\\linewidth}{!}{%")
+    lines.append("\\small")
     lines.append("\\begin{tabular}{llccccc}")
     lines.append("\\toprule")
     lines.append("Dataset & Method & Frame-AUC$\\uparrow$ & EER$\\downarrow$ & "
@@ -91,6 +93,7 @@ def main():
         lines.pop()
     lines.append("\\bottomrule")
     lines.append("\\end{tabular}")
+    lines.append("}")
     lines.append("\\end{table*}")
 
     args.out.parent.mkdir(parents=True, exist_ok=True)

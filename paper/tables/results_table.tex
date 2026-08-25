@@ -3,6 +3,8 @@
 \centering
 \caption{Main results: standard accuracy metrics alongside on-device streaming latency/throughput.}
 \label{tab:main}
+\resizebox{\linewidth}{!}{%
+\small
 \begin{tabular}{llccccc}
 \toprule
 Dataset & Method & Frame-AUC$\uparrow$ & EER$\downarrow$ & Latency (ms)$\downarrow$ & FPS$\uparrow$ & Hardware \\
@@ -14,4 +16,5 @@ CUHK Avenue & VADMamba (ICME'25) & -- & -- & -- & -- & -- \\ % source: arXiv:250
 CUHK Avenue & Ours (streaming SSM) & 70.2 & 34.9 & 0.77 & 1290.74 & mps \\
 \bottomrule
 \end{tabular}
+}
 \end{table*}

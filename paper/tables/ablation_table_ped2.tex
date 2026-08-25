@@ -3,6 +3,8 @@
 \centering
 \caption{Ablations on UCSD Ped2: architectural variants, all else held fixed. Latency/FPS measured the same way as Table~\ref{tab:main}.}
 \label{tab:ablation-ucsd-ped2}
+\resizebox{\linewidth}{!}{%
+\small
 \begin{tabular}{lcccc}
 \toprule
 Variant & Frame-AUC$\uparrow$ & EER$\downarrow$ & Latency (ms)$\downarrow$ & FPS$\uparrow$ \\
@@ -13,6 +15,8 @@ Decay fast, decay in [.5,.9] & 67.0 & 38.2 & 0.75 & 1330 \\
 Decay slow, decay in [.98,.9999] & 67.8 & 37.0 & 0.76 & 1311 \\
 State size N=32 & 74.7 & 33.1 & 0.77 & 1302 \\
 State size N=256 & 66.5 & 38.7 & 0.77 & 1298 \\
+Gate off + state size N=32 (combined) & 67.8 & 36.0 & 0.46 & 2156 \\
 \bottomrule
 \end{tabular}
+}
 \end{table*}

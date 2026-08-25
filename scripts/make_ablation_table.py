@@ -40,6 +40,8 @@ def main():
     lines.append(f"\\caption{{Ablations on {args.dataset}: architectural variants, all else "
                   "held fixed. Latency/FPS measured the same way as Table~\\ref{tab:main}.}")
     lines.append(f"\\label{{{label}}}")
+    lines.append("\\resizebox{\\linewidth}{!}{%")
+    lines.append("\\small")
     lines.append("\\begin{tabular}{lcccc}")
     lines.append("\\toprule")
     lines.append("Variant & Frame-AUC$\\uparrow$ & EER$\\downarrow$ & "
@@ -59,6 +61,7 @@ def main():
 
     lines.append("\\bottomrule")
     lines.append("\\end{tabular}")
+    lines.append("}")
     lines.append("\\end{table*}")
 
     args.out.parent.mkdir(parents=True, exist_ok=True)

@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.data.datasets import list_clips
 from src.data.transforms import get_transform
 from src.models.backbone import FrozenBackbone
-from src.utils import get_device, load_config
+from src.utils import apply_overrides, get_device, load_config
 
 
 @torch.no_grad()
@@ -51,9 +51,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True)
     parser.add_argument("--batch-size", type=int, default=64)
+    parser.add_argument("--override", nargs="+", default=[],
+                         help='e.g. --override backbone.name=dinov2_vits14 backbone.embed_dim=384')
     args = parser.parse_args()
 
     cfg = load_config(args.config)
+    apply_overrides(cfg, args.override)
     device = get_device(cfg["train"]["device"])
     print(f"Using device: {device}")
 

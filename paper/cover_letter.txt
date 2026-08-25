@@ -1,0 +1,18 @@
+Dear Editor,
+
+Please consider our manuscript, "Strictly Causal Streaming Video Anomaly Detection with a Theoretically-Grounded State-Space Core," for publication in Pattern Recognition Letters.
+
+Recent work has applied Mamba-style state-space models to video anomaly detection, but existing methods still process input in clips or windows, offer no theoretical account of how a model's temporal memory relates to detection latency, and benchmark efficiency only through GPU throughput rather than the edge hardware such methods are meant to target. This paper addresses those three gaps together with a single, simple architecture: a diagonal state-space recurrence with a learned event-boundary decay gate that updates in strictly O(1) time and memory per incoming frame, no clip buffering, no lookahead. We derive a closed-form relationship between the recurrence's decay spectrum and its detection delay, validate it empirically on two standard benchmarks, and report end-to-end latency measured directly on consumer edge silicon (Apple M3 Pro) rather than simulated from GPU numbers.
+
+We believe this fits Pattern Recognition Letters' scope well: it is a concise, self-contained methodological contribution with a clear applications angle (real-time, edge-deployable video anomaly detection), rather than the exhaustive multi-benchmark sweep expected of a longer survey-style journal article.
+
+We have tried to be direct about the manuscript's current limits rather than present only favorable results. Our frame-level accuracy trails prior, non-causal baselines, and an ablation over the event-boundary gate reverses sign between our two evaluated datasets; we report and discuss this openly, along with the specific reason a same-protocol reproduction of a recent SSM-based baseline was not possible (its released code depends on CUDA-only optical-flow kernels incompatible with the non-CUDA edge hardware this paper targets). We believe this transparency, together with the paper's theoretical contribution and its genuinely measured (not simulated) edge-deployment results, makes it a solid and honest contribution to the pattern recognition literature.
+
+This manuscript is original, has not been published previously, and is not under consideration elsewhere. All authors have approved the manuscript and agree with its submission to Pattern Recognition Letters. We have no conflicts of interest to declare.
+
+Thank you for your consideration.
+
+Sincerely,
+Yogesh Kumar
+Indian Institute of Technology Jodhpur
+kumar.204@iitj.ac.in

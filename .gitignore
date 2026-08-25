@@ -21,7 +21,7 @@ paper/*.blg
 paper/*.synctex.gz
 paper/*.fdb_latexmk
 paper/*.fls
-paper/main.pdf
+paper/*.pdf
 
 # env
 .venv/

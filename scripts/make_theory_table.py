@@ -46,6 +46,8 @@ def main():
     lines.append("\\caption{Predicted settling delay (Eq.~\\ref{eq:delay-bound}), from each "
                   "dataset's trained mean decay, vs.\\ empirically measured detection delay.}")
     lines.append("\\label{tab:theory}")
+    lines.append("\\resizebox{\\linewidth}{!}{%")
+    lines.append("\\small")
     lines.append("\\begin{tabular}{llccc}")
     lines.append("\\toprule")
     lines.append("Dataset & Layer & Mean decay $a$ & Theory delay (frames) & "
@@ -71,6 +73,7 @@ def main():
         lines.pop()
     lines.append("\\bottomrule")
     lines.append("\\end{tabular}")
+    lines.append("}")
     lines.append("\\end{table*}")
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
