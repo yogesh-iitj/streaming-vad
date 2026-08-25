@@ -244,13 +244,19 @@ AUC — the Ped2 clip in particular shows real false positives during the
 labeled-normal region, which is honest given where the model currently
 sits.
 
-<video src="https://raw.githubusercontent.com/yogesh-iitj/streaming-vad/main/assets/qualitative/ped2_Test001.mp4" controls width="480"></video>
+<video src="assets/qualitative/ped2_Test001.mp4" controls width="480"></video>
 
 UCSD Ped2, `Test001` (180 frames @ 10 fps).
 
-<video src="https://raw.githubusercontent.com/yogesh-iitj/streaming-vad/main/assets/qualitative/avenue_19.mp4" controls width="480"></video>
+<video src="assets/qualitative/avenue_19.mp4" controls width="480"></video>
 
 CUHK Avenue, clip `19` (248 frames @ 25 fps).
+
+(Relative paths, not `raw.githubusercontent.com` links: this repo is
+private, and that CDN doesn't serve private-repo content to
+unauthenticated requests. Relative paths render inline for anyone with
+repo access viewing this file on github.com; if you ever make the repo
+public, either form works.)
 
 Regenerate these, or render a different clip, with:
 
