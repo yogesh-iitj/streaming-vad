@@ -5,12 +5,25 @@ __pycache__/
 
 # data & artifacts (large, not versioned)
 data/
-checkpoints/
 results/
 features_cache/
-*.pt
 *.pth
 *.ckpt
+
+# checkpoints/: ignore everything except the two baseline checkpoints
+# behind the reported paper numbers (small enough to commit directly so
+# results are reproducible without retraining; ablation-variant
+# checkpoints stay regenerable via the documented --override/--tag
+# commands instead of being committed). A directory excluded with a
+# trailing slash blocks descent entirely, so this uses the `dir/*` +
+# per-level negation form instead.
+checkpoints/*
+!checkpoints/ped2
+checkpoints/ped2/*
+!checkpoints/ped2/latest.pt
+!checkpoints/avenue
+checkpoints/avenue/*
+!checkpoints/avenue/latest.pt
 
 # the paper is a separate deliverable (journal submission), not part of
 # this codebase repo; kept locally, never tracked here

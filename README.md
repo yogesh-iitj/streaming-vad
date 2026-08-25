@@ -40,6 +40,20 @@ These AUCs are well below published SOTA on these benchmarks (~95-99% on Ped2), 
 
 **Ablations** (`scripts/make_ablation_table.py`) turned up a real finding: the gate's effect on accuracy flips sign between datasets. Disabling it improves Ped2 (76.6% vs. 67.9%, smaller training set, looks like overfitting) but hurts Avenue sharply (60.0% vs. 70.2%, larger training set). Combining each dataset's two individually-helpful changes doesn't stack; both combined configs land back near baseline. Consistent with a capacity/data-size interaction, though it's a two-dataset hypothesis. ShanghaiTech (a third, larger dataset) is the natural next check; not yet run (large multi-part archive, only 1 of 7 parts obtained so far).
 
+### Reproduce these numbers
+
+The trained checkpoints behind the table above are committed at `checkpoints/ped2/latest.pt` and `checkpoints/avenue/latest.pt` (~2.5MB each), so reproducing them doesn't need retraining, just the datasets prepared (see Dataset preparation below) and cached features:
+
+```bash
+python scripts/extract_features.py --config configs/ped2.yaml
+python -m src.evaluate --config configs/ped2.yaml --checkpoint checkpoints/ped2/latest.pt --save-scores
+
+python scripts/extract_features.py --config configs/avenue.yaml
+python -m src.evaluate --config configs/avenue.yaml --checkpoint checkpoints/avenue/latest.pt --save-scores
+```
+
+Each prints frame-AUC, EER, and on-device latency/FPS matching the table exactly (evaluation is deterministic given a fixed checkpoint). For the theory-validation and ablation numbers, run `scripts/analyze_theory.py` against the same checkpoints, and see Usage below for `--override`/`--tag` to reproduce or extend the ablation sweeps (those checkpoints aren't committed, only the two baselines are).
+
 ## Setup
 
 ```bash
