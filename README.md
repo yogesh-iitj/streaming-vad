@@ -129,3 +129,7 @@ Repeat for `configs/avenue.yaml` / `configs/shanghaitech.yaml`. `train.py`, `eva
 - **One code path for training and streaming inference**: `forward()` is `step()` called in a loop, so reported efficiency can't silently diverge from what runs at deployment.
 - **Backbone frozen, feature-cached**: only the SSM head is trained, keeping the pipeline tractable on a laptop GPU.
 - RBDC/TBDC in `src/metrics.py` is a simplified frame-overlap stand-in, not the official region/track criteria; use the official toolkit for numbers you report externally.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
