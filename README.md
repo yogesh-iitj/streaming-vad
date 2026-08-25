@@ -27,9 +27,11 @@ This codebase is built around those three gaps: `src/train.py` /
 `src/evaluate.py` produce the standard accuracy numbers, and
 `scripts/analyze_theory.py` + the latency instrumentation in
 `evaluate.py` produce the theory-validation and deployment evidence that
-differentiate this from the existing 2025 SSM-VAD literature. See
-`paper/sections/theory.tex` for the full derivation and
-`paper/sections/related_work.tex` for the positioning against prior work.
+differentiate this from the existing 2025 SSM-VAD literature. The full
+derivation (Proposition 1: a closed-form settling-delay bound from the
+recurrence's decay spectrum) and positioning against prior work are
+written up in an accompanying paper manuscript, kept separately from
+this repo since it has its own review/revision lifecycle.
 
 ## Status
 
@@ -57,20 +59,22 @@ but empirical detection delay is far shorter — 1.6 frames on Ped2, 18.4
 on Avenue.
 
 **Ablations (decay range, state size, gate on/off) have also been run on
-both datasets** (`scripts/make_ablation_table.py`,
-`paper/tables/ablation_table_{ped2,avenue}.tex`) and turned up a real,
+both datasets** (`scripts/make_ablation_table.py`) and turned up a real,
 somewhat surprising finding: the event-boundary gate's effect on accuracy
 **flips sign between datasets**. On Ped2 (16 training clips, 120-180
-frames each) disabling the gate *improves* frame-AUC (76.6% vs.\ 67.9%
+frames each) disabling the gate *improves* frame-AUC (76.6% vs. 67.9%
 gated) and a smaller state also wins — pointing at overfitting on a
 small training set. On Avenue (16 clips, but up to 1271 frames each —
 much more total training data) disabling the gate *hurts* sharply (60.0%
-vs.\ 70.2% gated), and a larger state helps slightly. Read together this
+vs. 70.2% gated), and a larger state helps slightly. Read together this
 looks like a capacity/data-size interaction rather than the gate being
-fundamentally unhelpful, but it's a two-dataset hypothesis — see
-`paper/sections/theory.tex` §3.3 and `experiments.tex` for the full
-writeup. A third, larger dataset (ShanghaiTech, in progress) is the
-natural next check.
+fundamentally unhelpful, but it's a two-dataset hypothesis. We also
+tried combining each dataset's two individually-helpful changes
+(gate-off + smaller state on Ped2, larger state + slower decay on
+Avenue); neither combination beats its best individual component
+(67.8% and 71.1% respectively, both roughly back to baseline or
+single-factor levels), so the effects don't simply stack. A third,
+larger dataset (ShanghaiTech, in progress) is the natural next check.
 
 Ablation infra: `train.py`/`evaluate.py`/`analyze_theory.py` now accept
 `--override key.path=value` (for sweeps, so ablations don't need a
@@ -120,8 +124,11 @@ streaming-vad/
 │   ├── prepare_dataset.py      # raw dataset -> normalized frame/gt layout
 │   ├── extract_features.py     # precompute + cache frozen backbone features
 │   ├── analyze_theory.py       # decay-spectrum vs detection-delay validation
-│   └── make_latex_table.py     # eval_results.json -> paper/tables/results_table.tex
-├── paper/                     # LaTeX writeup (see paper/README below)
+│   ├── make_latex_table.py     # eval_results.json -> a LaTeX results-table fragment
+│   ├── make_theory_table.py    # theory_analysis.json -> a LaTeX theory-table fragment
+│   ├── make_ablation_table.py  # ablation eval_results.json's -> a LaTeX ablation-table fragment
+│   └── make_qualitative_video.py  # frame + live score + ground truth -> a short mp4
+├── assets/qualitative/         # short demo videos (see "Qualitative results" below)
 ├── data/                      # (gitignored) prepared datasets go here
 ├── features_cache/            # (gitignored) cached embeddings from extract_features.py
 ├── checkpoints/               # (gitignored) trained model weights
@@ -180,9 +187,11 @@ python scripts/analyze_theory.py --config configs/ped2.yaml \
     --checkpoint checkpoints/ped2/latest.pt --threshold 0.5
 ```
 
-Repeat steps 1–4 for every dataset you want in the paper
+Repeat steps 1–4 for every dataset you want results for
 (`configs/avenue.yaml`, `configs/shanghaitech.yaml`), then combine
-everything into the two paper tables:
+everything into LaTeX table fragments (useful if you're writing this up
+externally; default output goes to `paper/tables/*.tex`, a local,
+gitignored path, override with `--out` if you want it elsewhere):
 
 ```bash
 python scripts/make_latex_table.py --results \
@@ -197,8 +206,7 @@ python scripts/make_theory_table.py --results \
 ```
 
 Re-run both combiner scripts (with whichever datasets are ready) any time
-you re-run `evaluate.py` or `analyze_theory.py` for any one dataset —
-they're the only things that should touch `paper/tables/*.tex`.
+you re-run `evaluate.py` or `analyze_theory.py` for any one dataset.
 
 ## Reproducing the edge-latency numbers
 
@@ -224,10 +232,32 @@ edge-deployment evidence than MPS alone), export the trained model with
   head — keeps the whole pipeline tractable on a laptop GPU without
   sacrificing the ability to swap in a stronger backbone (DINOv2) later.
 
-## Paper
+## Qualitative results
 
-See `paper/main.tex`. Compile with `latexmk -pdf main.tex` from inside
-`paper/`. `paper/tables/results_table.tex` and
-`paper/tables/theory_table.tex` are auto-generated — don't hand-edit them,
-re-run `scripts/make_latex_table.py` / `scripts/analyze_theory.py`
-instead.
+Two short clips showing the model's real, unedited streaming output:
+the raw test frame, a green/red border for the ground-truth label at
+that frame, and the actual (already computed, not replayed after the
+fact) normalized anomaly score scrolling underneath with the true
+anomalous region shaded. These are exactly the runs behind the numbers
+above, not cherry-picked to look better than the reported 67.9%/70.2%
+AUC — the Ped2 clip in particular shows real false positives during the
+labeled-normal region, which is honest given where the model currently
+sits.
+
+<video src="https://raw.githubusercontent.com/yogesh-iitj/streaming-vad/main/assets/qualitative/ped2_Test001.mp4" controls width="480"></video>
+
+UCSD Ped2, `Test001` (180 frames @ 10 fps).
+
+<video src="https://raw.githubusercontent.com/yogesh-iitj/streaming-vad/main/assets/qualitative/avenue_19.mp4" controls width="480"></video>
+
+CUHK Avenue, clip `19` (248 frames @ 25 fps).
+
+Regenerate these, or render a different clip, with:
+
+```bash
+python scripts/make_qualitative_video.py --dataset ped2 --clip Test001
+python scripts/make_qualitative_video.py --dataset avenue --clip 19
+```
+
+Requires `evaluate.py --save-scores` to have been run for that dataset
+first (see Usage above), and `ffmpeg` on `PATH`.
