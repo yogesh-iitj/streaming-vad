@@ -1,23 +1,3 @@
 \begin{abstract}
-% TODO: rewrite once real numbers exist (see results/*/eval_results.json).
-% Draft skeleton below states the framing; fill in concrete AUC/EER/latency
-% figures and remove bracketed placeholders before submission.
-Recent work has applied Mamba-style state-space models (SSMs) to video
-anomaly detection, but existing approaches still buffer clips or windows
-internally and report no theoretical account of how a model's temporal
-memory relates to detection latency, nor any measurement on real edge
-hardware. We introduce a strictly causal streaming video anomaly detector
-in which a fixed-size state is updated in $O(1)$ time and memory per
-incoming frame, with no lookahead and no clip buffering. The temporal core
-is a diagonal linear state-space recurrence with an input- and
-state-dependent decay gate, trained self-supervised via causal
-next-embedding prediction on a frozen visual backbone. We derive a
-closed-form relationship between the recurrence's decay spectrum and its
-detection delay / minimum-detectable event duration, and validate it
-empirically. We further report end-to-end latency, memory, and throughput
-measured on consumer edge silicon (Apple M3 Pro), not just GPU throughput.
-On [UCSD Ped2 / CUHK Avenue / ShanghaiTech], our method achieves
-[XX.X]\% frame-level AUC while running at [XXX] FPS with [X.X] ms
-per-frame latency on-device, [matching/approaching] prior SSM-based
-methods that are not strictly causal.
+Recent work has applied Mamba-style state-space models (SSMs) to video anomaly detection, but existing approaches still buffer clips or windows internally, offer no theoretical account of how a model's temporal memory relates to detection latency, and benchmark efficiency only through GPU throughput rather than the edge hardware such methods are meant to target. We introduce a strictly causal streaming video anomaly detector whose fixed-size state is updated in $O(1)$ time and memory per incoming frame, with no lookahead and no clip buffering. Its temporal core is a diagonal linear state-space recurrence with an input- and state-dependent decay gate, trained self-supervised through causal next-embedding prediction on a frozen visual backbone. We derive a closed-form relationship between the recurrence's decay spectrum and both its detection delay and the shortest anomaly it can reliably detect, then validate it empirically on UCSD Ped2 and CUHK Avenue: the settling-delay bound predicted from the learned base decay alone (57 to 59 frames) sits far above the measured detection delay (1.6 and 18.4 frames respectively), showing that the event-boundary gate, not the base decay, governs how quickly the model reacts. We also report end-to-end latency and throughput measured directly on an Apple M3 Pro rather than simulated from GPU numbers, 0.74 ms and 0.77 ms per frame (over 1,300 FPS) on the two datasets. With an initial, untuned configuration the method reaches 67.9\% and 70.2\% frame-level AUC on Ped2 and Avenue, trailing prior non-causal SSM baselines on accuracy; ablations over decay rate, state size, and the gate itself show that the gate's contribution is data-size dependent rather than uniformly helpful, hurting accuracy on the smaller Ped2 training set and helping on the larger Avenue one. Closing this accuracy gap and extending evaluation to a third, larger benchmark are the immediate next steps, and we report both the theoretical and the accuracy picture in full rather than only the results that flatter the method.
 \end{abstract}

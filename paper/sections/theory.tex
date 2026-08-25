@@ -4,8 +4,7 @@
 This section derives a closed-form relationship between a channel's decay
 rate and (a) how long the model takes to react to an anomaly onset and
 (b) the shortest anomaly it can reliably detect, then validates it
-empirically (Section~\ref{sec:experiments}, via
-\texttt{scripts/analyze\_theory.py}). The analysis treats one channel of
+empirically (Section~\ref{sec:experiments}). The analysis treats one channel of
 the recurrence (Eq.~\ref{eq:recurrence}) in isolation with its
 \emph{effective} decay $a$ held constant across the transition being
 analyzed; Section~\ref{sec:theory-gating} discusses how the learned gate
@@ -48,11 +47,11 @@ Eq.~\ref{eq:delay-bound}.
 
 Eq.~\ref{eq:delay-bound} is monotonically increasing in $a$: channels
 with slower decay (larger $a$, longer memory) take strictly longer to
-react to a step change. This is exactly the quantity
-\texttt{scripts/analyze\_theory.py} computes from each trained layer's
-mean learned base decay $\bar{a}$ (Eq.~\ref{eq:base-decay}) and compares
-against the empirically measured delay between an anomaly's labeled onset
-and the first score-threshold crossing.
+react to a step change. This is exactly the quantity we compute from
+each trained layer's mean learned base decay $\bar{a}$
+(Eq.~\ref{eq:base-decay}) and compare against the empirically measured
+delay between an anomaly's labeled onset and the first score-threshold
+crossing.
 
 \subsection{Minimum-detectable event duration}
 \label{sec:theory-min-duration}
@@ -72,41 +71,8 @@ sweep ablation that tests this trade-off directly.
 
 \subsection{Role of the event-boundary gate}
 \label{sec:theory-gating}
-The analysis above assumes $a$ is fixed, but the actual effective decay
-$a_t = \bar a \odot g_t$ (Eq.~\ref{eq:gate}) is state- and
-input-dependent. Qualitatively, this was intended to let the model behave
-like a \emph{small} $a$ (fast reaction, per Eq.~\ref{eq:delay-bound})
-exactly when $g_t$ drops in response to a state/input mismatch — i.e.\ at
-a genuine event boundary — while behaving like the larger, more stable
-base decay $\bar a$ elsewhere: a shorter effective delay than a
-fixed-decay recurrence with the same $\bar a$, without paying the
-false-positive cost of a globally smaller decay everywhere.
+The analysis above assumes $a$ is fixed, but the actual effective decay $a_t = \bar a \odot g_t$ (Eq.~\ref{eq:gate}) is state- and input-dependent. The design intent was for the model to behave like a \emph{small} $a$ (fast reaction, per Eq.~\ref{eq:delay-bound}) exactly when $g_t$ drops in response to a state/input mismatch, that is, at a genuine event boundary, while behaving like the larger, more stable base decay $\bar a$ elsewhere: a shorter effective delay than a fixed-decay recurrence with the same $\bar a$, without paying the false-positive cost of a globally smaller decay everywhere.
 
-The settling-delay numbers in Section~\ref{sec:experiments} are
-consistent with the gate reacting fast (empirical delay far below the
-fixed-$\bar a$ bound on both Ped2 and Avenue). However, the ablations in
-Tables~\ref{tab:ablation-ucsd-ped2}--\ref{tab:ablation-cuhk-avenue}
-complicate the story, and in a way that is itself informative: fast
-reaction to a state/input mismatch is not automatically the same as
-reacting specifically to \emph{anomalous} mismatches, and whether the
-gate's extra parameters (Eq.~\ref{eq:gate}) learn the latter rather than
-overfitting to the former appears to depend on how much training data is
-available. On Ped2 (16 clips, 120-180 frames each — the smaller
-training set), disabling the gate \emph{improves} frame-AUC (76.6\% vs.\
-67.9\%), and a smaller state does too — both point to overfitting. On
-Avenue (16 clips, but up to 1271 frames each — substantially more total
-training frames), the pattern reverses: disabling the gate \emph{hurts}
-sharply (60.0\% vs.\ 70.2\%), and a larger state helps slightly rather
-than hurting. Read together, this is more consistent with a
-capacity/data-size interaction than with the gating mechanism being
-unhelpful in principle — but it is a two-dataset hypothesis, not a
-demonstrated effect, and a third, larger training set
-(ShanghaiTech, in progress) is needed before treating it as settled. We
-report the full, dataset-dependent picture here rather than only the
-settling-delay result that would have supported the original hypothesis
-on its own.
-% TODO: extend Proposition 1 to the time-varying-$a_t$ case (closed form
-% via a cumulative product, see the parallel-form discussion in
-% src/models/ssm.py's docstring) for a tighter bound; and re-run the gate
-% ablation on Avenue/ShanghaiTech (more training clips) before drawing a
-% dataset-independent conclusion.
+The settling-delay numbers in Section~\ref{sec:experiments} are consistent with the gate reacting fast, since the empirical delay sits far below the fixed-$\bar a$ bound on both Ped2 and Avenue. The ablations in Tables~\ref{tab:ablation-ucsd-ped2} and \ref{tab:ablation-cuhk-avenue} complicate this story in a way that is itself informative, because fast reaction to a state/input mismatch is not automatically the same as reacting specifically to \emph{anomalous} mismatches. Whether the gate's extra parameters (Eq.~\ref{eq:gate}) learn the latter rather than overfitting to the former appears to depend on how much training data is available. On Ped2, the smaller training set with 16 clips of 120 to 180 frames each, disabling the gate improves frame-AUC (76.6\% versus 67.9\%), and a smaller state does too, both consistent with overfitting. On Avenue, also 16 clips but up to 1271 frames each and so substantially more total training data, the pattern reverses: disabling the gate hurts sharply (60.0\% versus 70.2\%), and a larger state helps slightly rather than hurting. Read together, this is more consistent with a capacity and data-size interaction than with the gating mechanism being unhelpful in principle, but it remains a two-dataset hypothesis rather than a demonstrated effect. A third, substantially larger training set would be needed to test it properly; ShanghaiTech was intended for this but its raw data has not yet been fully obtained (Section~\ref{sec:experiments}), so this comparison stays open. We report the full, dataset-dependent picture here rather than only the settling-delay result that would have supported the original design hypothesis on its own.
+
+Two extensions would sharpen this analysis. Proposition~\ref{prop:settling} could be generalized to the time-varying $a_t$ case, which admits a closed form through a cumulative product (see the parallel-form discussion in the released code's state-space module), giving a tighter bound than the fixed-$\bar a$ approximation used here. And the gate ablation should be rerun on a third, larger dataset once available, since the capacity and data-size account above rests on only two data points that happen to share the same clip count.

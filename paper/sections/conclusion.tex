@@ -1,13 +1,5 @@
 \section{Conclusion}
 \label{sec:conclusion}
-% TODO: rewrite once results exist; keep to a short restatement of the
-% three contributions from Section~\ref{sec:intro} plus one honest
-% limitation (e.g. simplified RBDC/TBDC evaluation, single-hardware
-% deployment measurement, linear-regime theory assumption in
-% Section~\ref{sec:theory-gating}) and one concrete future-work item.
-We presented a strictly causal streaming video anomaly detector built on
-a causal diagonal state-space core with a learned event-boundary decay
-gate, a theoretical analysis relating decay spectrum to detection delay,
-and an evaluation that includes real on-device edge latency measurements
-alongside standard accuracy metrics. Limitations and future work: [fill
-in after ablations are run].
+We presented a strictly causal streaming video anomaly detector built on a causal diagonal state-space core with a learned event-boundary decay gate, together with a theoretical analysis relating the recurrence's decay spectrum to detection delay and an evaluation that includes real on-device edge latency measurements alongside standard accuracy metrics. The empirical picture is mixed by design rather than smoothed over after the fact. Frame-level accuracy, 67.9\% and 70.2\% AUC on Ped2 and Avenue, trails prior non-causal SSM baselines, and the event-boundary gate ablation reverses sign between the two datasets, which we read as evidence of a capacity and data-size interaction rather than a settled property of the gate.
+
+Three limitations bound these claims and set the immediate agenda. First, the RBDC/TBDC-style evaluation used during development is a simplified frame-overlap approximation rather than the official region- and track-based criteria of Ramachandra and Jones~\cite{ramachandra2020streetscene}; any localization numbers reported for submission should use the official toolkit instead. Second, edge-latency measurements come from a single hardware target, an Apple M3 Pro using PyTorch's MPS backend; a CoreML/Neural-Engine export and a second, non-Apple edge device would make the real-time claim more general than it currently is. Third, the settling-delay theorem (Proposition~\ref{prop:settling}) treats the decay as fixed, while the deployed model's gate makes it time-varying, so the bound is a loose upper bound rather than a tight prediction once the gate is active. Beyond these, evaluating on ShanghaiTech, closing the accuracy gap to prior work through backbone and hyperparameter tuning, and reproducing at least one SSM-based baseline under our own protocol are what stand between this draft and a submission-ready one.

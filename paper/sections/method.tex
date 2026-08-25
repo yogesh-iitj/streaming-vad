@@ -15,14 +15,7 @@ embedding level.
 
 \subsection{Frozen backbone}
 \label{sec:method-backbone}
-% TODO: report whichever backbone the final numbers use (configs/*.yaml
-% `backbone.name`); code supports ImageNet-pretrained ResNet-18
-% ($D{=}512$) and DINOv2 ViT-S/14 ($D{=}384$). The backbone is frozen
-% throughout training — only the temporal core (below) is optimized.
-We deliberately keep $\phi$ simple and frozen: the contribution of this
-paper is the temporal core and its analysis, not backbone design, and
-freezing $\phi$ keeps the trainable parameter count and compute footprint
-small enough to iterate on consumer hardware (Section~\ref{sec:experiments}).
+We deliberately keep $\phi$ simple and frozen. The contribution of this paper is the temporal core and its analysis, not backbone design, and freezing $\phi$ keeps the trainable parameter count and compute footprint small enough to iterate on consumer hardware (Section~\ref{sec:experiments}). The results reported in this paper use an ImageNet-pretrained ResNet-18 ($D{=}512$); the implementation also supports a frozen DINOv2 ViT-S/14 ($D{=}384$) as a stronger but heavier alternative, which we have not yet evaluated. The backbone's parameters are frozen throughout training; only the temporal core below is optimized.
 
 \subsection{Causal diagonal state-space core}
 \label{sec:method-ssm}
@@ -41,13 +34,7 @@ is layer normalization, $\theta_a \in \mathbb{R}^N$ is a learned
 per-channel parameter, and $[a_{\min}, a_{\max}] \subset (0,1)$ bounds the
 time-invariant \emph{base} decay $\bar{a}$ (Eq.~\ref{eq:base-decay},
 following the S4D/S5 initialization convention \cite{gu2022s4,smith2023s5}).
-The gate $g_t \in (0,1)^N$ (Eq.~\ref{eq:gate}) is the only
-input/state-dependent (``selective'', in Mamba's terminology
-\cite{gu2023mamba}) part of the recurrence: it lets the effective decay
-$a_t$ drop sharply — fast forgetting, i.e. an implicit state reset — when
-the current input is inconsistent with the current state, which is
-exactly the situation at an anomaly onset. We call $g_t$ the
-\emph{event-boundary gate} for this reason.
+The gate $g_t \in (0,1)^N$ (Eq.~\ref{eq:gate}) is the only input- or state-dependent part of the recurrence, ``selective'' in Mamba's terminology~\cite{gu2023mamba}. It lets the effective decay $a_t$ drop sharply, an implicit state reset through fast forgetting, when the current input is inconsistent with the current state, which is exactly the situation at an anomaly onset. We call $g_t$ the \emph{event-boundary gate} for this reason.
 Eq.~\ref{eq:recurrence} is a diagonal (real-valued) linear recurrence,
 not a full re-implementation of Mamba's selective-scan kernel, which is
 CUDA-only; this keeps the entire model runnable on non-CUDA edge hardware
@@ -55,16 +42,12 @@ CUDA-only; this keeps the entire model runnable on non-CUDA edge hardware
 state size and $O(1)$ per-step compute in the sequence length.
 
 \subsubsection{Strict causality, by construction}
-Unlike prior SSM-based VAD methods that process fixed-size clips or
-maintain a sliding buffer internally
-\cite{vadmamba2025,wavemambaad2025}, Eqs.~\ref{eq:gate}--\ref{eq:recurrence}
-depend only on $s_{t-1}$ and $x_t$ — there is no operation in the model
-that looks ahead or re-processes past frames. Algorithm~\ref{alg:step}
+Unlike prior SSM-based VAD methods that process fixed-size clips or maintain a sliding buffer internally~\cite{vadmamba2025,wavemambaad2025}, Eqs.~\ref{eq:gate}--\ref{eq:recurrence} depend only on $s_{t-1}$ and $x_t$; there is no operation in the model that looks ahead or reprocesses past frames. Algorithm~\ref{alg:step}
 gives the exact per-frame update used both at training time (called once
 per timestep, unrolled over a window) and at deployment (called once per
 incoming frame); using the identical routine in both settings is a
 deliberate choice, so that reported efficiency is not an artifact of a
-training-time-only formulation (see \texttt{src/models/ssm.py}).
+training-time-only formulation.
 
 \begin{algorithm}[t]
 \caption{Streaming per-frame update (one layer)}
