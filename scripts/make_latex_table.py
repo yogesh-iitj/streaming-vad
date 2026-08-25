@@ -22,22 +22,6 @@ DATASET_LABELS = {
     "shanghaitech": "ShanghaiTech",
 }
 
-# Numbers reported by prior work, for reference rows in the same table.
-# Fill in / correct against the original papers before submission —
-# these are NOT reproduced by this codebase and must be cited, not
-# claimed as our own reruns.
-LITERATURE_BASELINES = {
-    "ped2": [
-        {"name": "VADMamba (ICME'25)", "frame_auc": None, "source": "arXiv:2503.21169"},
-    ],
-    "avenue": [
-        {"name": "VADMamba (ICME'25)", "frame_auc": None, "source": "arXiv:2503.21169"},
-    ],
-    "shanghaitech": [
-        {"name": "VADMamba (ICME'25)", "frame_auc": None, "source": "arXiv:2503.21169"},
-    ],
-}
-
 
 def fmt(x, pct=True):
     if x is None:
@@ -75,22 +59,13 @@ def main():
         ds_key = e["dataset"]
         ds_label = DATASET_LABELS.get(ds_key, ds_key)
 
-        for baseline in LITERATURE_BASELINES.get(ds_key, []):
-            lines.append(
-                f"{ds_label} & {baseline['name']} & {fmt(baseline['frame_auc'])} & "
-                f"-- & -- & -- & -- \\\\ % source: {baseline['source']}"
-            )
-
         lines.append(
             f"{ds_label} & Ours (streaming SSM) & "
             f"{fmt(e.get('frame_auc'))} & {fmt(e.get('eer'))} & "
             f"{fmt(e.get('latency_ms_mean'), pct=False)} & "
             f"{fmt(e.get('fps'), pct=False)} & {e.get('device', '--')} \\\\"
         )
-        lines.append("\\midrule")
 
-    if lines[-1] == "\\midrule":
-        lines.pop()
     lines.append("\\bottomrule")
     lines.append("\\end{tabular}")
     lines.append("}")

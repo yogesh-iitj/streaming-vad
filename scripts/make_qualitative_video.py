@@ -38,7 +38,36 @@ from src.utils import load_config
 FFMPEG = shutil.which("ffmpeg") or str(Path.home() / "bin" / "ffmpeg")
 
 
-def render_clip(dataset: str, clip_id: str, out_path: Path, fps: float, threshold: float):
+def encode_mp4(png_glob: str, fps: float, out_path: Path):
+    subprocess.run(
+        [FFMPEG, "-y", "-framerate", str(fps), "-i", png_glob,
+         "-c:v", "libx264", "-pix_fmt", "yuv420p", "-vf", "scale=640:-2",
+         "-movflags", "+faststart", str(out_path)],
+        check=True, capture_output=True,
+    )
+
+
+def encode_gif(png_glob: str, fps: float, out_path: Path, width: int = 360, gif_fps: float = 8):
+    # GIFs render inline and autoplay on GitHub with no click needed, unlike
+    # <video>; a two-pass palette gives much better quality per byte than a
+    # single-pass GIF. Downsampled fps/width keep file size reasonable.
+    with tempfile.TemporaryDirectory() as tmp:
+        palette = Path(tmp) / "palette.png"
+        vf = f"fps={gif_fps},scale={width}:-1:flags=lanczos"
+        subprocess.run(
+            [FFMPEG, "-y", "-framerate", str(fps), "-i", png_glob,
+             "-vf", f"{vf},palettegen", str(palette)],
+            check=True, capture_output=True,
+        )
+        subprocess.run(
+            [FFMPEG, "-y", "-framerate", str(fps), "-i", png_glob, "-i", str(palette),
+             "-filter_complex", f"{vf}[x];[x][1:v]paletteuse", str(out_path)],
+            check=True, capture_output=True,
+        )
+
+
+def render_clip(dataset: str, clip_id: str, out_path: Path, fps: float, threshold: float,
+                 fmt: str):
     cfg = load_config(f"configs/{dataset}.yaml")
     root = cfg["dataset"]["root"]
 
@@ -101,13 +130,18 @@ def render_clip(dataset: str, clip_id: str, out_path: Path, fps: float, threshol
             plt.close(fig)
 
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        subprocess.run(
-            [FFMPEG, "-y", "-framerate", str(fps), "-i", str(tmp_dir / "frame_%05d.png"),
-             "-c:v", "libx264", "-pix_fmt", "yuv420p", "-vf", "scale=640:-2",
-             "-movflags", "+faststart", str(out_path)],
-            check=True, capture_output=True,
-        )
-    print(f"wrote {out_path}")
+        png_glob = str(tmp_dir / "frame_%05d.png")
+        written = []
+        if fmt in ("mp4", "both"):
+            mp4_path = out_path.with_suffix(".mp4")
+            encode_mp4(png_glob, fps, mp4_path)
+            written.append(mp4_path)
+        if fmt in ("gif", "both"):
+            gif_path = out_path.with_suffix(".gif")
+            encode_gif(png_glob, fps, gif_path)
+            written.append(gif_path)
+    for p in written:
+        print(f"wrote {p}")
 
 
 def main():
@@ -117,14 +151,17 @@ def main():
     parser.add_argument("--fps", type=float, default=None,
                          help="defaults to the dataset's native capture fps from its config")
     parser.add_argument("--threshold", type=float, default=0.5)
+    parser.add_argument("--format", choices=["mp4", "gif", "both"], default="both",
+                         help="gif renders inline and autoplays on GitHub with no click; "
+                              "mp4 is smaller and has playback controls")
     parser.add_argument("--out", default=None)
     args = parser.parse_args()
 
     cfg = load_config(f"configs/{args.dataset}.yaml")
     fps = args.fps or cfg["dataset"]["fps"]
-    out_path = Path(args.out or f"assets/qualitative/{args.dataset}_{args.clip}.mp4")
+    out_path = Path(args.out or f"assets/qualitative/{args.dataset}_{args.clip}")
 
-    render_clip(args.dataset, args.clip, out_path, fps, args.threshold)
+    render_clip(args.dataset, args.clip, out_path, fps, args.threshold, args.format)
 
 
 if __name__ == "__main__":
