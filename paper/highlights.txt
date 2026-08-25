@@ -1,7 +1,0 @@
-Highlights
-
-- Strictly causal video anomaly detector: O(1) compute and memory per frame.
-- Closed-form theorem links decay rate to detection delay, validated empirically.
-- Real on-device latency (0.7-0.8 ms/frame) measured on Apple M3 Pro, not simulated.
-- Gate ablation reveals a capacity/data-size interaction across two datasets.
-- Reports its own accuracy gap and dataset limits honestly, not just favorable results.

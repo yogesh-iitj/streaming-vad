@@ -12,16 +12,9 @@ features_cache/
 *.pth
 *.ckpt
 
-# latex build artifacts
-paper/*.aux
-paper/*.log
-paper/*.out
-paper/*.bbl
-paper/*.blg
-paper/*.synctex.gz
-paper/*.fdb_latexmk
-paper/*.fls
-paper/*.pdf
+# the paper is a separate deliverable (journal submission), not part of
+# this codebase repo; kept locally, never tracked here
+paper/
 
 # env
 .venv/
